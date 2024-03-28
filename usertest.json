@@ -1,0 +1,1200 @@
+{
+	"info": {
+		"_postman_id": "62eba161-27fa-41c0-b946-ad2aabb44d13",
+		"name": "Restaurant",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29531582"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"TOKEN\",pm.response.json().token)\r",
+									"\r",
+									"pm.test(\"Resgistered (\" + pm.globals.get('Next_register_role') + ')', function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"\r",
+									"postman.setNextRequest(\"Login User\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Function to generate a random string\r",
+									"function generateRandomString(length) {\r",
+									"    var result = '';\r",
+									"    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';\r",
+									"    var charactersLength = characters.length;\r",
+									"    for (var i = 0; i < length; i++) {\r",
+									"        result += characters.charAt(Math.floor(Math.random() * charactersLength));\r",
+									"    }\r",
+									"    return result;\r",
+									"}\r",
+									"\r",
+									"function generateRandomPhoneNumber(length) {\r",
+									"    var result = '';\r",
+									"    var characters = '0123456789';\r",
+									"    var charactersLength = characters.length;\r",
+									"    for (var i = 0; i < length; i++) {\r",
+									"        result += characters.charAt(Math.floor(Math.random() * charactersLength));\r",
+									"    }\r",
+									"    return result;\r",
+									"}\r",
+									"\r",
+									"var randomEmail = generateRandomString(10) + '@example.com';\r",
+									"\r",
+									"var randomPhone = '+' + generateRandomPhoneNumber(10) ;\r",
+									"console.log(randomPhone);\r",
+									"pm.environment.set('random_email', randomEmail);\r",
+									"pm.environment.set('random_PhoneNum', randomPhone);\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{$randomFullName}}\",\r\n    \"email\": \"{{random_email}}\",\r\n    \"role\": \"{{Next_register_role}}\",\r\n    \"password\": \"password123\",\r\n    \"tel\": \"{{random_PhoneNum}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/auth/register",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"TOKEN\",pm.response.json().token)\r",
+									"\r",
+									"pm.test(\"Status code is 200 \" + \"(\" + pm.globals.get('Next_register_role') + ')', function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"postman.setNextRequest(\"Get Logged In User with Token\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\r\n    \"email\": \"{{random_email}}\",\r\n    \"password\": \"password123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/auth/login",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Logged In User with Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set('role',pm.response.json().data.role);\r",
+									"\r",
+									"postman.setNextRequest(\"Get All Restaurant\");\r",
+									"\r",
+									"pm.test(\"Status code is 200 \" + \"(\" + pm.environment.get('role') + \")\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1ZDcwMGE2ZWQzYjIwNmU1NjQyNmY3OSIsImlhdCI6MTcwODU5NDU5MywiZXhwIjoxNzExMTg2NTkzfQ.O1XCvd5Ngtmqvo2x0I0rbvQfT8IRQV8T2rWMdH_rDbc",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/api/v1/auth/me",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"TOKEN\",null)\r",
+									"\r",
+									"pm.test(\"Status code is 200 \" + \"(\" + pm.environment.get('role') + \")\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"if(pm.environment.get('role') == 'admin'){\r",
+									"    postman.setNextRequest(null);\r",
+									"}else{\r",
+									"    postman.setNextRequest(null);\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/auth/logout",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "restaurants",
+			"item": [
+				{
+					"name": "Get All Restaurant",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 \" + \"(\" + pm.environment.get('role') + \")\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const response = pm.response.json();\r",
+									"\r",
+									"console.log(response);\r",
+									"\r",
+									"pm.test(\"There are some hospitals!!\", () => {\r",
+									"    pm.expect(response.count).to.be.above(0);\r",
+									"});\r",
+									"\r",
+									"if (pm.environment.get('role') == 'user') {\r",
+									"    for (let i = 0; i < 3; i++) { // Using let instead of var\r",
+									"        pm.globals.set('number_reserve', i); // Correct syntax for setting a global variable\r",
+									"        postman.setNextRequest(\"Add One Reserves\");\r",
+									"    }\r",
+									"} else {\r",
+									"    postman.setNextRequest(\"Get All Reserves\");\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/restaurants",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"restaurants"
+							]
+						},
+						"description": "Fetch all hospitals from database"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Restaurant",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"postman.setNextRequest(\"Update Single Restaurant\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/restaurants/:hospital_ID",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"restaurants",
+								":hospital_ID"
+							],
+							"variable": [
+								{
+									"key": "hospital_ID",
+									"value": "{{global_hospital_ID}}"
+								}
+							]
+						},
+						"description": "Get single hospital from database then res Hospital id"
+					},
+					"response": []
+				},
+				{
+					"name": "Create New Restaurant",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"const response = pm.response.json();\r",
+									"const new_hopital_id = response.data.id;\r",
+									"\r",
+									"pm.globals.set(\"global_hospital_ID\", new_hopital_id);\r",
+									"\r",
+									"postman.setNextRequest(\"Get Single Restaurant\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{$randomFullName}}\",\r\n    \"address\": \"123 Main Street\",\r\n    \"district\": \"Downtown\",\r\n    \"province\": \"Bangkok\",\r\n    \"postalcode\": \"10100\",\r\n    \"tel\": \"+66-2-1234567\",\r\n    \"region\": \"Central Thailand\",\r\n    \"openingHours\": [\r\n        { \"dayOfWeek\": \"Monday\", \"opens\": \"08:00\", \"closes\": \"17:00\" },\r\n        { \"dayOfWeek\": \"Tuesday\", \"opens\": \"08:00\", \"closes\": \"17:00\" },\r\n        { \"dayOfWeek\": \"Wednesday\", \"opens\": \"08:00\", \"closes\": \"17:00\" },\r\n        { \"dayOfWeek\": \"Thursday\", \"opens\": \"08:00\", \"closes\": \"17:00\" },\r\n        { \"dayOfWeek\": \"Friday\", \"opens\": \"08:00\", \"closes\": \"17:00\" },\r\n        { \"dayOfWeek\": \"Saturday\", \"opens\": \"09:00\", \"closes\": \"13:00\" } \r\n        // Note: No opening hours for Sunday\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/restaurants",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"restaurants"
+							]
+						},
+						"description": "Create new hospital from database then res message"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Single Restaurant",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"postman.setNextRequest(\"Delete Single Restaurant\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{$randomFullName}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/restaurants/:hospital_ID",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"restaurants",
+								":hospital_ID"
+							],
+							"variable": [
+								{
+									"key": "hospital_ID",
+									"value": "{{global_hospital_ID}}"
+								}
+							]
+						},
+						"description": "Update hospital in database then res hospital id"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Single Restaurant",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"postman.setNextRequest(null);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/restaurants/:hospital_ID",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"restaurants",
+								":hospital_ID"
+							],
+							"variable": [
+								{
+									"key": "hospital_ID",
+									"value": "{{global_hospital_ID}}"
+								}
+							]
+						},
+						"description": "Delete Hospital in database then return void"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Vaccine Restaurant",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/hospitals/vacCenters",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"hospitals",
+								"vacCenters"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reservations",
+			"item": [
+				{
+					"name": "Get All Reserves",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if(pm.environment.get('role') == 'user'){\r",
+									"    pm.test(\"Status code is 200\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"    pm.test(\"User Can View Own Reserves\", function () {\r",
+									"        var jsonData = pm.response.json();\r",
+									"        pm.expect(jsonData.count).to.lte(3);\r",
+									"    });\r",
+									"}else if(pm.environment.get('role') == 'admin'){\r",
+									"    pm.test(\"Status code is 200\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"    pm.test(\"Admin Can View all Reserves\", function () {\r",
+									"        var jsonData = pm.response.json();\r",
+									"        pm.expect(jsonData.count).to.gt(3);\r",
+									"    });\r",
+									"}\r",
+									"postman.setNextRequest(\"Update Reserves\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/reserves",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"reserves"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Reserves for Restaurant",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/restaurants/65d6fade1a67ae61223bcde9/reserves",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"restaurants",
+								"65d6fade1a67ae61223bcde9",
+								"reserves"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Restaurant & Reserves",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/restaurants/65dddb444276c812327615e9",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"restaurants",
+								"65dddb444276c812327615e9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get One Reserves",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/reserves/65e2049d62daa5ef7716c7e1",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"reserves",
+								"65e2049d62daa5ef7716c7e1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add One Reserves",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"    pm.test(\"Status code is 200 \" + \"(\" + pm.environment.get('role') + \")\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"    const response = pm.response.json();\r",
+									"    const new_reserves_id = response.data._id;\r",
+									"    pm.globals.set('Reservefortestadmin',new_reserves_id);\r",
+									"\r",
+									"    postman.setNextRequest(\"Add One Reserves 2\");\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"apptDate\": \"2023-11-15T17:00:00.000Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/restaurants/65e30190f112dd1b50f4cde9/reserves",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"restaurants",
+								"65e30190f112dd1b50f4cde9",
+								"reserves"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add One Reserves 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"    \r",
+									"    pm.test(\"Status code is 200 \" + \"(\" + pm.environment.get('role') + \")\", function () {\r",
+									"        pm.response.to.have.status(200);\r",
+									"    });\r",
+									"\r",
+									"    \r",
+									"    postman.setNextRequest(\"Add One Reserves 3\");\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"apptDate\": \"2023-11-15T17:00:00.000Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/restaurants/65e30190f112dd1b50f4cde9/reserves",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"restaurants",
+								"65e30190f112dd1b50f4cde9",
+								"reserves"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add One Reserves 3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"    \r",
+									"    const response = pm.response.json();\r",
+									"    const new_reserves_id = response.data._id;\r",
+									"    pm.globals.set('Reserves_id',new_reserves_id);\r",
+									"    console.log('a');\r",
+									"\r",
+									"pm.test(\"Status code is 200 \" + \"(\" + pm.environment.get('role') + \")\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"    \r",
+									"    postman.setNextRequest(\"Add One Reserves 4\");\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"apptDate\": \"2023-11-15T17:00:00.000Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/restaurants/65e30190f112dd1b50f4cde9/reserves",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"restaurants",
+								"65e30190f112dd1b50f4cde9",
+								"reserves"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add One Reserves 4",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"    pm.test(\"Status code is 400 \" + \"(\" + pm.environment.get('role') + \")\", function () {\r",
+									"        pm.response.to.have.status(400);\r",
+									"    });\r",
+									"    \r",
+									"    postman.setNextRequest(\"Get All Reserves\");\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"apptDate\": \"2023-11-15T17:00:00.000Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/restaurants/65e30190f112dd1b50f4cde9/reserves",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"restaurants",
+								"65e30190f112dd1b50f4cde9",
+								"reserves"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Reserves",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 \" + \"(\" + pm.environment.get('role') + \")\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"postman.setNextRequest(\"Delete One Reserves\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "JSON Type",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"apptDate\": \"2024-01-15T17:00:00.000Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/api/v1/reserves/:reserves_id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"reserves",
+								":reserves_id"
+							],
+							"variable": [
+								{
+									"key": "reserves_id",
+									"value": "{{Reserves_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete One Reserves",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 \" + \"(\" + pm.environment.get('role') + \")\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.globals.set('Reserves_id',pm.globals.get('Reservefortestadmin'));\r",
+									"if(pm.environment.get('role') == 'user'){\r",
+									"    pm.globals.set('Next_register_role','admin');\r",
+									"}else{\r",
+									"    pm.globals.set('Next_register_role','user');\r",
+									"}\r",
+									"postman.setNextRequest('Logout User');\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/api/v1/reserves/:reserves_id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"reserves",
+								":reserves_id"
+							],
+							"variable": [
+								{
+									"key": "reserves_id",
+									"value": "{{Reserves_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "URL",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "TOKEN",
+			"value": "",
+			"type": "string",
+			"enable": true
+		},
+		{
+			"key": "random_email",
+			"value": "",
+			"type": "string",
+			"enable": true
+		},
+		{
+			"key": "random_PhoneNum",
+			"value": "",
+			"type": "string",
+			"enable": true
+
+		},
+		{
+			"key": "role",
+			"value": "",
+			"type": "string",
+			"enabled": true
+		},
+		{
+			"key": "Next_register_role",
+			"value": "user",
+			"enabled": true
+		},
+		{
+			"key": "Reservefortestadmin",
+			"value": "",
+			"type": "string",
+			"enabled": true
+		},
+		{
+			"key": "number_reserve",
+			"value": "",
+			"type": "var",
+			"enabled": true
+		}
+
+	]
+	
+}
